@@ -7,7 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import addDays from "date-fns/addDays";
 import axios from "axios";
 import format from "date-fns/format";
-import Result from './Result';
+import Result from "./Result";
 
 const Today = new Date();
 registerLocale("ja", ja);
@@ -17,12 +17,13 @@ class Home extends React.Component {
     date: addDays(new Date(), 14),
     budget: "12000",
     departure: "1",
-    duration: "90"
+    duration: "90",
+    plans: [],
+    planCount: 0
   };
 
   onFormSubmit = async event => {
     event.preventDefault();
-
     const response = await axios.get(
       "https://l1kwik11ne.execute-api.ap-northeast-1.amazonaws.com/production/golf-courses",
       {
@@ -107,9 +108,7 @@ class Home extends React.Component {
               </button>
             </div>
           </form>
-          <Result
-          plans={this.state.plans}
-          />
+          <Result plans={this.state.plans} planCount={this.state.planCount} />
         </div>
       </div>
     );
