@@ -8,6 +8,7 @@ import addDays from "date-fns/addDays";
 import axios from "axios";
 import format from "date-fns/format";
 import Result from "./Result";
+import Loading from "./Loading";
 
 const Today = new Date();
 registerLocale("ja", ja);
@@ -20,13 +21,14 @@ class Home extends React.Component {
     duration: "90",
     planCount: 0,
     plans: null,
-    error: null
+    error: null,
+    loading: false
   };
 
   onFormSubmit = async event => {
     try{
     event.preventDefault();
-    throw 'error';
+    this.setState({ loading: true})
     const response = await axios.get(
       "https://l1kwik11ne.execute-api.ap-northeast-1.amazonaws.com/production/golf-courses",
       {
@@ -41,7 +43,8 @@ class Home extends React.Component {
     this.setState({
       planCount: response.data.count,
       plans: response.data.plans
-    });
+    })
+    this.setState({ loading: false });
   }catch (e) {
     this.setState({error: e})
   }
@@ -114,6 +117,9 @@ class Home extends React.Component {
               </button>
             </div>
           </form>
+
+          <Loading loading={this.state.loading}/>
+          
           <Result plans={this.state.plans}
           planCount={this.state.planCount}
           error={this.state.error}
