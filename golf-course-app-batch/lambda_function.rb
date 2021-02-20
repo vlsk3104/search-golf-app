@@ -1,5 +1,13 @@
 require 'google_maps_service'
 require 'rakuten_web_service'
+require 'aws-record'
+
+class SearchGolfApp # DynamoDBのテーブル名とします
+  include Aws::Record
+  integer_attr :golf_course_id, hash_key: true
+  integer_attr :duration1  # 基準地点1からの所要時間
+  integer_attr :duration2 # 基準地点2からの所要時間
+end
 
 module Area
   # 楽天APIで定められているエリアコード（8:茨城県,11:埼玉県,12:千葉県,13:東京都,14:神奈川県）
@@ -27,6 +35,15 @@ def duration_minutes(departure, destination)
   duration_seconds / 60 #単位が秒なので分に直す
 end
 
+def put_item(course_id, durations)
+  return if SearchGolfApp.find(golf_course_id: course_id)
+  duration = SearchGolfApp.new
+  duration.golf_course_id = course_id
+  duration.duration1 = durations.fetch(1)
+  duration.duration2 = durations.fetch(2)
+  duration.save
+end
+
 def lambda_handler(event:, context:)
   RakutenWebService.configure do |c|
     c.application_id = ENV['RAKUTEN_APPID']
@@ -46,7 +63,9 @@ def lambda_handler(event:, context:)
       minutes = duration_minutes(departure, course_name)
       durations.store(duration_id, minutes) if minutes
     end
-    # TODO: 3. 取得した取得した情報をDynamoDBに保存する
+    
+    put_item(course_id, durations) unless durations.empty? # コースIDとそれぞれの出発地点とコースへの移動時間をDynamoDBへ格納する
+    
       end
       break unless courses.next_page? #次のページが存在するかどうか確認するメソッド
    end
