@@ -1,3 +1,4 @@
+### ![サービスの全体像](/images/service_whole_statue.png)
 ### React&Rubyを使った開発
 ### https://master.d3sxkafbeuh79y.amplifyapp.com/
 ### サーバレス(AWS Lambda, DynamoDB, API Gateway)を使った開発
